@@ -1,0 +1,30 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: ruiji_take_out
+  datasource:
+    druid:
+        url: jdbc:mysql://localhost:3306/db_ruiji?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+        username: root
+        password: shu123456
+        driver-class-name: com.mysql.cj.jdbc.Driver
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: ASSIGN_ID
+      logic-delete-field: is_deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  redis:
+    host: 1.92.124.58
+    port: 6379
+    password: xiaoning
+    database: 14
+
+
+ruijie:
+  path: /Users/nn/Documents/loopy/ruiji_take_out/src/uploadImages/

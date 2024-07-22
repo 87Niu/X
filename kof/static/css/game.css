@@ -1,0 +1,74 @@
+#kof {
+    width: 1000px;
+    height: 400px;
+    background-image: url("/static/images/background/0.gif");
+    background-size: 100% 100%;
+    background-position: top;
+    position: absolute;
+}
+
+
+.kof-head {
+    width: 100%;
+    height: 60px;
+    position: absolute;
+    flex: float;
+    top: 0;
+    align-items: center;
+    display: flex;
+}
+.kof-head-hp-0 {
+    width: calc(50% - 100px);
+    height: 70%;
+    box-sizing: border-box;
+    border: 3px white solid;
+    border-right: none;
+    margin-left: 60px;
+}
+
+
+.kof-head-timer {
+    width: 80px;
+    height: 100%;
+    background-color: orange;
+    font-weight: 1000;
+    font-size: 45px;
+    text-align: center;
+    user-select: none;
+    border: 5px white solid;
+}
+
+
+.kof-head-hp-1 {
+    width: calc(50% - 100px);
+    height: 70%;
+    border: 3px white solid;
+    border-left: none;
+}
+
+
+.kof-head-hp-0>div {
+    width: 100%;
+    height: 100%;
+    background-color: red;
+    float: right;
+}
+
+.kof-head-hp-0>div>div {
+    width: 100%;
+    height: 100%;
+    background-color: lightgreen;
+    float: right;
+}
+
+.kof-head-hp-1>div {
+    width: 100%;
+    height: 100%;
+    background-color: red;
+}
+
+.kof-head-hp-1>div>div {
+    width: 100%;
+    height: 100%;
+    background-color: lightgreen;
+}
