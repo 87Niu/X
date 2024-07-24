@@ -1,9 +1,9 @@
 <template>
 
-    <BaseContent v-if="!$store.state.user.pulling_info">
+<BaseContent>
         <div class="row justify-content-md-center">
             <div class="col-3">
-                <form @submit.prevent="login">
+                <form @submit.prevent="register">
                     <div class="mb-3">
                         <label for="username" class="form-label">用户名</label>
                         <input v-model="username" type="text" class="form-control" id="username" placeholder="请输入用户名">
@@ -12,6 +12,11 @@
                         <label for="password" class="form-label">密码</label>
                         <input v-model="password" type="password" class="form-control" id="password"
                             placeholder="请输入密码">
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirmPassword" class="form-label">重复密码</label>
+                        <input v-model="confirmPassword" type="password" class="form-control" id="confirmPassword"
+                            placeholder="请再次输入密码">
                     </div>
                     <div class="error-message">
                         {{ error_message }}
@@ -27,10 +32,9 @@
 
 <script>
 import BaseContent from '@/components/BaseContent.vue';
-import router from '@/router';
 import { ref } from 'vue';
-import { useStore } from 'vuex';
-
+import axios from 'axios';
+import router from '@/router';
 export default {
 
     components: {
@@ -38,54 +42,42 @@ export default {
     },
 
     setup() {
-        const store = useStore();
         let username = ref('');
         let password = ref('');
+        let confirmPassword = ref('');
+
         let error_message = ref('');
 
-        const jwt_token = localStorage.getItem("jwt_token");
-        if (jwt_token) {
-            store.commit("updateToken", jwt_token);
-            store.dispatch("getinfo", {
-                success() {
-                    router.push({name: 'home'});
-                    store.commit("updatePullingInfo", false);
+        const register = () => {
+            axios({
+                url: "http://127.0.0.1:9999/user/account/register",
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
                 },
-                error() {
-                    store.commit("updatePullingInfo", false);
+                data: JSON.stringify({
+                    username: username.value,
+                    password: password.value,
+                    confirmPassword: confirmPassword.value,
+                })
+            }).then((result) => {
+                if (result.data.error_message === "success") {
+                    router.push({name: 'user_account_login'});
+                } else {
+                    error_message.value = result.data.error_message;
                 }
             })
-        } else {
-            store.commit("updatePullingInfo", false);
         }
 
-        const login = () => {
-            error_message.value = "";
-            store.dispatch("login", {
-                username: username.value,
-                password: password.value,
-                success() {
-                    store.dispatch("getinfo", {
-                        success(resp) {
-                            if (resp.error_message === "success") {
-                                router.push({ name: 'home' });
-                                console.log(store.state.user);
-                            }
-                        }
-                    })
-                },
-                error() {
-                    error_message.value = "用户名或密码错误";
-                }
-            })
-        }
 
         return {
-            username,
+            username, 
             password,
+            confirmPassword,
             error_message,
-            login,
+            register,
         }
+
     }
 
 }
@@ -94,11 +86,12 @@ export default {
 
 
 <style scoped>
+
 button {
     width: 100%;
 }
-
 div.error-message {
     color: red;
+    justify-content: center;
 }
 </style>
