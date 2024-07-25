@@ -20,6 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
     @Autowired
     private JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter;
 
@@ -27,6 +28,7 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
@@ -34,11 +36,10 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf().disable()
+        http.csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .authorizeRequests()
+                .authorizeHttpRequests()
                 .requestMatchers("/user/account/token", "/user/account/register").permitAll()
                 .requestMatchers(HttpMethod.OPTIONS).permitAll()
                 .anyRequest().authenticated()
@@ -50,7 +51,6 @@ public class SecurityConfig {
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().requestMatchers("/user/account/token", "/user/account/register");
+        return (web) -> web.ignoring().requestMatchers("/websocket/**");
     }
 }
-
