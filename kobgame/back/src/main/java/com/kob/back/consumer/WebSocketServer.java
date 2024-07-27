@@ -21,7 +21,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 @ServerEndpoint("/websocket/{token}")
 public class WebSocketServer {
 
-    private static final ConcurrentHashMap<Integer, WebSocketServer> users = new ConcurrentHashMap<>();
+    public static final ConcurrentHashMap<Integer, WebSocketServer> users = new ConcurrentHashMap<>();
 
     private static final CopyOnWriteArraySet<User> matchPool = new CopyOnWriteArraySet<>();
 
@@ -31,7 +31,7 @@ public class WebSocketServer {
 
     private static UserService userService;
 
-    private Game gameMap = null;
+    private Game game = null;
 
     @Autowired
     public void setUserService(UserService userService) {
@@ -74,23 +74,43 @@ public class WebSocketServer {
             matchPool.remove(a);
             matchPool.remove(b);
 
-            Game game = new Game(13, 14, 20);
+            Game game = new Game(13, 14, 20, a.getId(), b.getId());
             game.createMap();
+
+            users.get(a.getId()).game = game;
+            users.get(b.getId()).game = game;
+            game.start();
+            JSONObject respGame = new JSONObject();
+            // 玩家的id以及横纵信息
+            respGame.put("a_id", game.getPlayerA().getId());
+            respGame.put("a_sx", game.getPlayerA().getSx());
+            respGame.put("a_sy", game.getPlayerA().getSy());
+            respGame.put("b_id", game.getPlayerB().getId());
+            respGame.put("b_sx", game.getPlayerB().getSx());
+            respGame.put("b_sy", game.getPlayerB().getSy());
+            respGame.put("map", game.getG());
 
 
             JSONObject respA = new JSONObject();
             respA.put("event", "start-matching");
             respA.put("opponent_username", b.getUsername());
             respA.put("opponent_photo", b.getPhoto());
-            respA.put("gamemap", game.getG());
+            respA.put("game", game.getG());
             users.get(a.getId()).sendMessage(respA.toJSONString());
 
             JSONObject respB = new JSONObject();
             respB.put("event", "start-matching");
             respB.put("opponent_username", a.getUsername());
             respB.put("opponent_photo", a.getPhoto());
-            respB.put("gamemap", game.getG());
+            respB.put("game", game.getG());
             users.get(b.getId()).sendMessage(respB.toJSONString());
+        }
+    }
+    private void move(int direction) {
+        if(game.getPlayerA().getId().equals(user.getId())) {
+            game.setNextStepA(direction);
+        } else if(game.getPlayerB().getId().equals(user.getId())) {
+            game.setNextStepB(direction);
         }
     }
     private void stopMatching() {
@@ -100,16 +120,18 @@ public class WebSocketServer {
     @OnMessage
     public void onMessage(String message, Session session) {
         // 从Client接收消息
-
-        System.out.println("received message: " + message);
+        System.out.println("receive message: " + message);
         JSONObject data = JSONObject.parseObject(message);
         String event = data.getString("event");
-        if ("start-matching".equals(event)) {
+        if("start-matching".equals(event)) {
             startMatching();
-        } else if ("stop-matching".equals(event)) {
+        } else if("stop-matching".equals(event)) {
             stopMatching();
+        } else if("move".equals(event)) {
+            move(data.getInteger("direction"));
         }
     }
+
 
     @OnError
     public void onError(Session session, Throwable error) {
