@@ -35,10 +35,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
     @Autowired
     private OrderDetailService orderDetailService;
 
-    /**
-     * 用户下单
-     * @param orders
-     */
     @Transactional
     public void submit(Orders orders) {
         //获得当前用户id
@@ -49,7 +45,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
         wrapper.eq(ShoppingCart::getUserId,userId);
         List<ShoppingCart> shoppingCarts = shoppingCartService.list(wrapper);
 
-        if(shoppingCarts == null || shoppingCarts.size() == 0){
+        if(shoppingCarts == null || shoppingCarts.isEmpty()){
             throw new CustomException("购物车为空，不能下单");
         }
 

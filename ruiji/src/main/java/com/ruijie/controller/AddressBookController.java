@@ -28,7 +28,7 @@ public class AddressBookController {
         return R.success(addressBook);
     }
 
-    @PutMapping("default")
+    @PutMapping("/default")
     public R<AddressBook> setDefault(@RequestBody AddressBook addressBook) {
 
         LambdaUpdateWrapper<AddressBook> wrapper = new LambdaUpdateWrapper<>();
@@ -53,7 +53,7 @@ public class AddressBookController {
         }
     }
 
-    @GetMapping("default")
+    @GetMapping("/default")
     public R<AddressBook> getDefault() {
         LambdaQueryWrapper<AddressBook> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(AddressBook::getUserId, BaseContext.getCurrentId());

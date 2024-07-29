@@ -43,7 +43,7 @@ public class UserController {
             //调用阿里云提供的短信服务API完成发送短信
             //SMSUtils.sendMessage("瑞吉外卖","",phone,code);
 
-            //需要将生成的验证码保存到Session
+            //需要将生成的验证码保存到redis
             session.setAttribute(phone,code);
 
             redisTemplate.opsForValue().set(phone, code, 5, TimeUnit.MINUTES);
@@ -77,7 +77,7 @@ public class UserController {
             }
             session.setAttribute("user", user.getId());
 
-            redisTemplate.opsForValue().getAndDelete(phone);
+            redisTemplate.delete(phone);
             return R.success(user);
 
         }

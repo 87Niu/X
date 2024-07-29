@@ -6,6 +6,7 @@ import com.ruijie.common.R;
 import com.ruijie.pojo.ShoppingCart;
 import com.ruijie.service.ShoppingCartService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -33,7 +34,6 @@ public class ShoppingCartController {
         if(dishId != null){
             //添加到购物车的是菜品
             queryWrapper.eq(ShoppingCart::getDishId,dishId);
-
         }else{
             //添加到购物车的是套餐
             queryWrapper.eq(ShoppingCart::getSetmealId,shoppingCart.getSetmealId());
@@ -79,4 +79,53 @@ public class ShoppingCartController {
 
         return R.success("清空购物车成功");
     }
+
+    @PostMapping("/sub")
+    @Transactional
+    public R<ShoppingCart> sub(@RequestBody ShoppingCart shoppingCart){
+
+        Long dishId = shoppingCart.getDishId();
+        LambdaQueryWrapper<ShoppingCart> queryWrapper = new LambdaQueryWrapper<>();
+        //代表数量减少的是菜品数量
+        if(dishId != null){
+
+            queryWrapper.eq(ShoppingCart::getDishId,dishId)
+                    .eq(ShoppingCart::getUserId,BaseContext.getCurrentId());
+            ShoppingCart cart1= shoppingCartService.getOne(queryWrapper);
+            cart1.setNumber(cart1.getNumber() - 1);
+            Integer LatestNumber = cart1.getNumber();
+            if(LatestNumber > 0) {
+                shoppingCartService.updateById(cart1);
+            }else if(LatestNumber == 0){
+                shoppingCartService.removeById(cart1.getId());
+            }else {
+                return R.error("操作异常");
+            }
+            return R.success(cart1);
+
+        }
+        Long setmealId = shoppingCart.getSetmealId();
+        if(setmealId != null){
+            //代表是套餐数量减少
+            queryWrapper.eq(ShoppingCart::getSetmealId,setmealId)
+                    .eq(ShoppingCart::getUserId,BaseContext.getCurrentId());
+            ShoppingCart cart2 = shoppingCartService.getOne(queryWrapper);
+            cart2.setNumber(cart2.getNumber()-1);
+            Integer LatestNumber = cart2.getNumber();
+            if(LatestNumber>0){
+                //对操作数据更新
+                shoppingCartService.updateById(cart2);
+            }else if(LatestNumber==0){
+                //如果购物车的套餐数量减为0，那么就把套餐从购物车删除
+                shoppingCartService.removeById(cart2.getId());
+            }else {
+                return R.error("操作异常");
+            }
+            return R.success(cart2);
+        }
+        //如果两个大if判断都进不去
+        return R.error("操作异常");
+
+    }
+
 }

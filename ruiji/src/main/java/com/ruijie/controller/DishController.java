@@ -2,7 +2,6 @@ package com.ruijie.controller;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ruijie.common.R;
 import com.ruijie.dto.DishDto;
@@ -20,8 +19,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -96,10 +93,8 @@ public class DishController {
 
     // 停售
     @PostMapping("/status/0")
-    public R<String> stop(@RequestParam String ids) {
-        List<Long> idList;
-        idList = Arrays.stream(ids.split(",")).map(Long::parseLong).collect(Collectors.toList());
-        for (Long id : idList) {
+    public R<String> start(@RequestParam List<Long> ids) {
+        for (Long id : ids) {
             LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
             queryWrapper.eq(Dish::getId, id);
             Dish dish = dishService.getOne(queryWrapper);
@@ -110,17 +105,15 @@ public class DishController {
     }
 
     @PostMapping("/status/1")
-    public R<String> deleteByArray(@RequestParam String ids) {
-        List<Long> idList;
-        idList = Arrays.stream(ids.split(",")).map(Long::parseLong).toList();
-        for (Long id : idList) {
-            Dish dish = dishService.getById(id);
+    public R<String> stop(@RequestParam List<Long> ids) {
+        for (Long id : ids) {
+            LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(Dish::getId, id);
+            Dish dish = dishService.getOne(queryWrapper);
             dish.setStatus(1);
-            LambdaUpdateWrapper<Dish> updateWrapper = new LambdaUpdateWrapper<>();
-            updateWrapper.eq(Dish::getId, id);
-            dishService.update(dish, updateWrapper);
+            dishService.updateById(dish);
         }
-        return R.success("停售成功");
+        return R.success("启售成功");
     }
 
     @GetMapping("/list")
@@ -136,8 +129,6 @@ public class DishController {
 
 
         //构造查询条件
-
-
         LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(dish.getCategoryId() != null ,Dish::getCategoryId,dish.getCategoryId());
         //添加条件，查询状态为1（起售状态）的菜品
@@ -167,7 +158,6 @@ public class DishController {
             Long dishId = item.getId();
             LambdaQueryWrapper<DishFlavor> lambdaQueryWrapper = new LambdaQueryWrapper<>();
             lambdaQueryWrapper.eq(DishFlavor::getDishId,dishId);
-            //SQL:select * from dish_flavor where dish_id = ?
             List<DishFlavor> dishFlavorList = dishFlavorService.list(lambdaQueryWrapper);
             dishDto.setFlavors(dishFlavorList);
             return dishDto;

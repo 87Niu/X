@@ -9,6 +9,12 @@ spring:
         username: root
         password: shu123456
         driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    redis:
+      host: x.xx.xxx.xxx
+      password: 123456
+      port: 6379
+      database: 0
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
@@ -19,12 +25,6 @@ mybatis-plus:
       logic-delete-field: is_deleted
       logic-delete-value: 1
       logic-not-delete-value: 0
-  redis:
-    host: 1.92.124.58
-    port: 6379
-    password: xiaoning
-    database: 14
-
 
 ruijie:
-  path: /Users/nn/Documents/loopy/ruiji_take_out/src/uploadImages/
+  path: /Users/nn/Documents/X/ruiji/src/uploadImages/
